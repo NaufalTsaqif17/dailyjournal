@@ -19,30 +19,31 @@ if (!$query) {
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.5/font/bootstrap-icons.css" rel="stylesheet">
     <style>
       
-      #galery .bg-white img {
-        height: 220px;
-        width: 100%;
-        object-fit: cover;
-        display: block;
+      /* Gallery carousel (dinamis dari database) */
+      #galery{ background-color:#a58cff; }
+
+      #galery .gallery-shell{
+        background:#fff;
+        padding:14px;
+        border-radius:18px;
+        box-shadow: 0 10px 24px rgba(0,0,0,.10);
       }
 
-     
-      #galery .bg-white {
-        height: 224px; 
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
+      #galery .gallery-shell img{
+        width:100%;
+        height:520px;
+        object-fit:contain; /* agar tidak terpotong */
+        background:#fff;
+        border-radius:14px;
+        display:block;
       }
 
-      
-      #galleryModalImg {
-        max-height: 80vh;
-        object-fit: contain;
-        width: auto;
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
+      @media (max-width: 992px){
+        #galery .gallery-shell img{ height:420px; }
+      }
+
+      @media (max-width: 576px){
+        #galery .gallery-shell img{ height:280px; }
       }
       
       html { scroll-behavior: smooth; }
@@ -460,81 +461,37 @@ if (!$query) {
       <h2 class="text-center display-4 fw-bold text-dark mb-4">Gallery</h2>
       <p class="text-center text-dark mb-4">Kumpulan karya pribadi saya</p>
 
-      <div class="row g-3">
-        <div class="col-6 col-sm-4 col-md-4">
-          <button class="btn p-0 border-0 w-100" data-bs-toggle="modal" data-src="img/BLACK.png" data-bs-target="#galleryModal">
-            <div class="bg-white p-2 rounded shadow-sm">
-              <img src="img/BLACK.png" alt="BLACK" class="img-fluid rounded" loading="lazy">
-            </div>
-          </button>
-        </div>
-        <div class="col-6 col-sm-4 col-md-4">
-          <button class="btn p-0 border-0 w-100" data-bs-toggle="modal" data-src="img/dwarf.png" data-bs-target="#galleryModal">
-            <div class="bg-white p-2 rounded shadow-sm">
-              <img src="img/dwarf.png" alt="Dwarf" class="img-fluid rounded" loading="lazy">
-            </div>
-          </button>
-        </div>
-        <div class="col-6 col-sm-4 col-md-4">
-          <button class="btn p-0 border-0 w-100" data-bs-toggle="modal" data-src="img/Golf1.png" data-bs-target="#galleryModal">
-            <div class="bg-white p-2 rounded shadow-sm">
-              <img src="img/Golf1.png" alt="Golf" class="img-fluid rounded" loading="lazy">
-            </div>
-          </button>
-        </div>
-        <div class="col-6 col-sm-4 col-md-4">
-          <button class="btn p-0 border-0 w-100" data-bs-toggle="modal" data-src="img/Man.png" data-bs-target="#galleryModal">
-            <div class="bg-white p-2 rounded shadow-sm">
-              <img src="img/Man.png" alt="Man" class="img-fluid rounded" loading="lazy">
-            </div>
-          </button>
-        </div>
-        <div class="col-6 col-sm-4 col-md-4">
-          <button class="btn p-0 border-0 w-100" data-bs-toggle="modal" data-src="img/Man1.png" data-bs-target="#galleryModal">
-            <div class="bg-white p-2 rounded shadow-sm">
-              <img src="img/Man1.png" alt="Man1" class="img-fluid rounded" loading="lazy">
-            </div>
-          </button>
-        </div>
-        <div class="col-6 col-sm-4 col-md-4">
-          <button class="btn p-0 border-0 w-100" data-bs-toggle="modal" data-src="img/Stand%20Dog.png" data-bs-target="#galleryModal">
-            <div class="bg-white p-2 rounded shadow-sm">
-              <img src="img/Stand%20Dog.png" alt="Stand Dog" class="img-fluid rounded" loading="lazy">
-            </div>
-          </button>
-        </div>
-        <div class="col-6 col-sm-4 col-md-4">
-          <button class="btn p-0 border-0 w-100" data-bs-toggle="modal" data-src="img/Tralalelo.png" data-bs-target="#galleryModal">
-            <div class="bg-white p-2 rounded shadow-sm">
-              <img src="img/Tralalelo.png" alt="Tralalelo" class="img-fluid rounded" loading="lazy">
-            </div>
-          </button>
-        </div>
-        <div class="col-6 col-sm-4 col-md-4">
-          <button class="btn p-0 border-0 w-100" data-bs-toggle="modal" data-src="img/tv%20head.png" data-bs-target="#galleryModal">
-            <div class="bg-white p-2 rounded shadow-sm">
-              <img src="img/tv%20head.png" alt="TV Head" class="img-fluid rounded" loading="lazy">
-            </div>
-          </button>
-        </div>
-        <div class="col-6 col-sm-4 col-md-4">
-          <button class="btn p-0 border-0 w-100" data-bs-toggle="modal" data-src="img/woman%20.png" data-bs-target="#galleryModal">
-            <div class="bg-white p-2 rounded shadow-sm">
-              <img src="img/woman%20.png" alt="Woman" class="img-fluid rounded" loading="lazy">
-            </div>
-          </button>
-        </div>
-      </div>
-      <div class="modal fade" id="galleryModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered">
-          <div class="modal-content bg-transparent border-0">
-            <div class="modal-body p-0">
-              <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
-              <img src="" id="galleryModalImg" alt="Preview" class="img-fluid w-100 rounded">
-            </div>
+      <?php
+        $galleryQuery = mysqli_query($conn, "SELECT * FROM gallery ORDER BY tanggal DESC");
+      ?>
+
+      <?php if ($galleryQuery && mysqli_num_rows($galleryQuery) > 0): ?>
+        <div id="galleryCarousel" class="carousel slide" data-bs-ride="false">
+          <div class="carousel-inner">
+            <?php $i = 0; while ($g = mysqli_fetch_assoc($galleryQuery)): ?>
+              <div class="carousel-item <?= ($i === 0) ? 'active' : '' ?>">
+                <div class="gallery-shell">
+                  <img
+                    src="img/<?= htmlspecialchars($g['gambar']) ?>"
+                    alt="<?= htmlspecialchars($g['deskripsi']) ?>"
+                    loading="lazy">
+                </div>
+              </div>
+            <?php $i++; endwhile; ?>
           </div>
+
+          <button class="carousel-control-prev" type="button" data-bs-target="#galleryCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#galleryCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+          </button>
         </div>
-      </div>
+      <?php else: ?>
+        <div class="text-center text-dark">Belum ada data gallery.</div>
+      <?php endif; ?>
     </div>
   </section>
   <!-- galery end -->

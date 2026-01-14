@@ -1,17 +1,28 @@
 <?php
-// memulai session atau melanjutkan session yang sudah ada
+
 session_start();
 
 include "koneksi.php";
 
-// check jika belum ada user yang login arahkan ke halaman login
 if (!isset($_SESSION['username'])) {
   header("location:login.php");
   exit();
 }
 
-// halaman aktif
+
 $page = $_GET['page'] ?? 'dashboard';
+
+$stmtUser = $conn->prepare("SELECT id, username, password, foto FROM user WHERE username = ? LIMIT 1");
+$stmtUser->bind_param("s", $_SESSION['username']);
+$stmtUser->execute();
+$currentUser = $stmtUser->get_result()->fetch_assoc();
+$stmtUser->close();
+
+if (!$currentUser) {
+  session_destroy();
+  header('Location: login.php');
+  exit();
+}
 ?>
 <!doctype html>
 <html lang="en">
@@ -26,7 +37,7 @@ $page = $_GET['page'] ?? 'dashboard';
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
         crossorigin="anonymous">
 
-  <!-- Bootstrap Icons (untuk footer icon) -->
+  <!-- Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
 
   <!-- 5) Sticky footer style -->
@@ -72,6 +83,13 @@ $page = $_GET['page'] ?? 'dashboard';
             </a>
           </li>
 
+          <li class="nav-item">
+            <a class="nav-link <?= ($page === 'gallery') ? 'fw-bold text-dark' : 'text-dark' ?>"
+               href="admin.php?page=gallery">
+              Gallery
+            </a>
+          </li>
+
           <!-- Username dropdown -->
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle text-dark fw-bold" href="#" role="button"
@@ -80,6 +98,7 @@ $page = $_GET['page'] ?? 'dashboard';
             </a>
 
             <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="admin.php?page=profile">Profile</a></li>
               <li><a class="dropdown-item" href="logout.php">Logout</a></li>
             </ul>
           </li>
@@ -118,11 +137,11 @@ $page = $_GET['page'] ?? 'dashboard';
       <a href="https://twitter.com/udinusofficial" target="_blank" rel="noopener">
         <i class="bi bi-twitter h2 p-2 text-dark"></i>
       </a>
-      <a href="https://wa.me/+62812685577" target="_blank" rel="noopener">
+      <a href="https://wa.me/+6285877750041" target="_blank" rel="noopener">
         <i class="bi bi-whatsapp h2 p-2 text-dark"></i>
       </a>
     </div>
-    <div>Aprilyani Nur Safitri &copy; 2023</div>
+    <div>My Daily Journal &copy; 2023</div>
   </footer>
   <!-- footer end -->
 

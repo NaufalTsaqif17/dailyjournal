@@ -3,10 +3,45 @@ session_start();
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    include "koneksi.php";
+
     $username = $_POST['user'] ?? '';
     $password = $_POST['pass'] ?? '';
-    
-    if ($username === 'admin' && $password === '123456') {
+
+    $stmt = $conn->prepare("SELECT username, password FROM user WHERE username = ? LIMIT 1");
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $user = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    $valid = false;
+
+    if ($user) {
+  
+        if (password_verify($password, $user['password'])) {
+            $valid = true;
+
+        } elseif (md5($password) === $user['password']) {
+            $valid = true;
+
+            $newHash = password_hash($password, PASSWORD_DEFAULT);
+            $up = $conn->prepare("UPDATE user SET password=? WHERE username=?");
+            $up->bind_param("ss", $newHash, $username);
+            $up->execute();
+            $up->close();
+
+        } elseif ($password === $user['password']) {
+            $valid = true;
+
+            $newHash = password_hash($password, PASSWORD_DEFAULT);
+            $up = $conn->prepare("UPDATE user SET password=? WHERE username=?");
+            $up->bind_param("ss", $newHash, $username);
+            $up->execute();
+            $up->close();
+        }
+    }
+
+    if ($valid) {
         $_SESSION['username'] = $username;
         header('Location: admin.php');
         exit();
@@ -24,7 +59,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
       rel="stylesheet"
-      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
       crossorigin="anonymous"
     />
     <link
@@ -57,14 +91,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <h3 class="mt-3">My Daily Journal</h3>
         <hr />
       </div>
-      
+
       <?php if (!empty($error)): ?>
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
           <?= htmlspecialchars($error) ?>
           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
       <?php endif; ?>
-      
+
       <form action="" method="post">
         <div class="mb-3">
           <input
@@ -89,15 +123,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
           <button type="submit" class="btn btn-primary rounded-4 py-2">Login</button>
         </div>
       </form>
-      
+
       <small class="text-center d-block mt-3 text-muted">
-        Demo: username: admin | password: 123456
+        Password: admin/123456 dan april/april
       </small>
     </div>
-      
+
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
       crossorigin="anonymous"
     ></script>
   </body>
